@@ -677,22 +677,23 @@ footer {
         text-decoration: underline;
     }
     .footer_menu li:first-child a {
-        background-color: rgb(35, 62, 86);
+        color: rgb(98, 101, 103);
     }
-    .footer_menu li:nth-child(2) a {
-        background-color: rgb(141, 167, 174);
+    .footer_menu li:nth-child(2) a {  
+        color: rgb(4, 17, 23);
     }
     .footer_menu li:nth-child(3) a {
-        background-color: rgb(0, 118, 193);
+        color: rgb(35, 62, 86);
     }
     .footer_menu li:nth-child(4) a {
-        background-color: rgb(98, 101, 103);
+        color: rgb(141, 167, 174);
     }
     .footer_menu li:nth-child(5) a {
-        background-color: rgb(243, 159, 0);
+        color: rgb(0, 118, 193);
     }
     .footer_menu li:nth-child(6) a {
-        background-color: rgb(4, 17, 23);
+        
+        color: rgb(243, 159, 0);
     }
     .icon_footer {
         display: none;
