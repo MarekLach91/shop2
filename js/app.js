@@ -103,22 +103,21 @@ $(function(){
     })
     
  $(function(){ 
-    let i = 0; 
-    let inner = i+1;
+    let i = 1; 
      
-    $('.js-counter-page').html(inner);
+    $('.js-counter-page').html(i);
      
     $('.js-next').click(function(e){
-       $('.js-counter-page').html(inner++ +1); 
+       $('.js-counter-page').html(++i); 
     });
      
      $('.js-prev').click(function(e){
-       $('.js-counter-page').html(inner-- -1); 
-         });
-      if(inner === "1"){
-         $('.js-prev').attr("disabled", true);
+           if(i === 1){
+         e.stopPropagation();        
+     } else {
+        $('.js-counter-page').html(--i); 
      } 
+     });
      
-    $('.js-counter-page') 
 });
 })
