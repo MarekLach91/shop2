@@ -5,6 +5,12 @@ $(function(){
 		$(this).toggleClass('open');
     });
     
+    
+        $('#x-menu').click(function(){
+		$('.hide').toggleClass('show');
+    });
+    
+    
     const currentState = {
         sortColumn: 'id',
         sortOrder: 'asc',  // AKTUALNY STAN
