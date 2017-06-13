@@ -164,7 +164,7 @@ header {
 }
 
 #logo {
-    margin-top: -23px;
+    margin-top: -26px;
     float: left;
     height: 150px;
     width: 150px;
@@ -313,9 +313,9 @@ header {
 /*hamburger-menu*/
 
 #x-menu {
-    top: -20px;
+    top: -24px;
     right: 10px;
-    width: 46px;
+    width: 35px;
     height: 40px;
     position: absolute;
     margin: 50px auto;
@@ -333,7 +333,7 @@ header {
 #x-menu span {
     display: block;
     position: absolute;
-    height: 7px;
+    height: 5px;
     width: 100%;
     background: #4C4C4B;
     border-radius: 9px;
@@ -354,7 +354,7 @@ header {
 }
 
 #x-menu span:nth-child(2) {
-    top: 16px;
+    top: 13px;
 }
 
 #x-menu:hover span:nth-child(2) {
@@ -362,11 +362,11 @@ header {
 }
 
 #x-menu span:nth-child(3) {
-    top: 32px;
+    top: 26px;
 }
 
 #x-menu.open span:nth-child(1) {
-    top: 18px;
+    top: 11px;
     -webkit-transform: rotate(135deg);
     -moz-transform: rotate(135deg);
     -o-transform: rotate(135deg);
@@ -380,13 +380,12 @@ header {
 }
 
 #x-menu.open span:nth-child(3) {
-    top: 18px;
+    top: 11px;
     -webkit-transform: rotate(-135deg);
     -moz-transform: rotate(-135deg);
     -o-transform: rotate(-135deg);
     transform: rotate(-135deg);
 }
-
 
 
 /*SECTION*/
