@@ -1,5 +1,10 @@
 $(function(){
     
+    
+    $('#x-menu').click(function(){
+		$(this).toggleClass('open');
+    });
+    
     const currentState = {
         sortColumn: 'id',
         sortOrder: 'asc',  // AKTUALNY STAN
