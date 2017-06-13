@@ -397,8 +397,8 @@ section {
 /*form-field*/
 
 form {
-    padding-top: 100px;
-    padding-bottom: 40px;
+    padding-top: 70px;
+    padding-bottom: 70px;
 }
 
 fieldset {
@@ -479,7 +479,9 @@ td {
 
 tr:nth-child(even) {
     background-color: #f2f2f2
+        
 }
+
 
 th {
     background-color: rgb(35, 62, 86);
@@ -772,5 +774,38 @@ footer {
     }
     #x-menu {
         display: none;
+    }
+}
+@media (max-width: 800px) {
+    #box-button {
+    position: fixed;
+    top: 202px;
+    left: 30%;
+    color: rgb(243, 159, 0);
+
+    }
+    .counter {
+        opacity: 1;
+    }
+    #button-prev {
+        color: rgb(0, 118, 193);
+        opacity: 0.5;
+    }
+      #button-next {
+        color: rgb(0, 118, 193);
+        opacity: 0.5;
+    }
+}
+
+@media (max-width: 550px){
+#box-button {
+    left: 20%;
+    }
+}
+
+
+@media (max-width: 450px){
+#box-button {
+    left: 15%;
     }
 }
