@@ -454,9 +454,11 @@ legend {
     background-size: contain;
 }
 
-.magnifier:focus {
+.magnifier:focus  {
     outline: 0;
 }
+
+
 
 
 /*table*/
@@ -780,7 +782,9 @@ footer {
     #box-button {
     position: fixed;
     top: 202px;
-    left: 30%;
+    margin: 14px auto; 
+    left: 0;
+    right: 0;
     color: rgb(243, 159, 0);
 
     }
@@ -794,18 +798,5 @@ footer {
       #button-next {
         color: rgb(0, 118, 193);
         opacity: 0.5;
-    }
-}
-
-@media (max-width: 550px){
-#box-button {
-    left: 20%;
-    }
-}
-
-
-@media (max-width: 450px){
-#box-button {
-    left: 15%;
     }
 }
