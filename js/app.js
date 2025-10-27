@@ -1,175 +1,149 @@
-$(function(){
-    
-    
-//    hamburger menu
-    
-    $('#x-menu').click(function(){
-		$(this).toggleClass('open');
+$(function() {
+
+    // === HAMBURGER MENU ===
+    $('#x-menu').click(function() {
+        $(this).toggleClass('open');
+        $('.hide').toggleClass('show');
     });
-    
-    
-        $('#x-menu').click(function(){
-		$('.hide').toggleClass('show');
-    });
-    
-//    prevent default
-       
+
+    // === PREVENT DEFAULT ===
     $('ul li').on('click', function(e){
-    e.preventDefault(); 
-    })
-    
-// API  
-    
-    const currentState = { // parametry do url
+        e.preventDefault(); 
+    });
+
+    // === STAN APLIKACJI ===
+    const currentState = { 
         sortColumn: 'id',
-        sortOrder: 'asc',  // aktualny stan
+        sortOrder: 'asc',
         filter: "",
         page: 1,
         page_size: 20
-    }
-    
-    const apiUrl = 'https://host175990.xce.pl/data.json';
-    
-    const generateUrl = () => apiUrl + '?' + $.param(currentState) // url
-    
+    };
+
+    const apiUrl = 'https://host175990.xce.pl/data.json'; // plik z danymi
+
     const sortingMethods = [
         {name: 'Id', sortColumn: 'id'},
         {name: 'Symbol', sortColumn: 'acronym'},
         {name: 'Opis', sortColumn: 'name'}
-    ]
-    
-    
+    ];
+
+    // === FUNKCJE BUDUJĄCE ===
     const buildItem = (item) => (
         `<tr>
             <td>${item.id}</td>    
             <td>${item.acronym}</td>    
             <td>${item.name}</td> 
          </tr>`
-    )
-    const buildList = (items) => items.map(buildItem) // iterowanie po headerach  
-//    items.map(function(item) => { return buildItem(item)})
-    
+    );
+
+    const buildList = (items) => items.map(buildItem).join('');
+
     const buildHeaderItem = (item) => { 
-        let sort = 'asc'; // domysle 
-        if(item.sortColumn === currentState.sortColumn){
-            sort = currentState.sortOrder === sort ? 'desc' : 'asc'  // skrócenie if i esle  
-            currentState.sortOrder = sort  
+        let sort = currentState.sortOrder;
+        if (item.sortColumn === currentState.sortColumn) {
+            sort = currentState.sortOrder === 'asc' ? 'desc' : 'asc';
         }
-        
         return `<th>
-            <a data-column="${item.sortColumn}" class="js-sort" href="${apiUrl}?sort_column=${item.sortColumn}&sort_order=${sort}&filter=${currentState.filter}">${item.name}</a>
-               </th>`
-        
-    }
-    
-    const buildHeader = () => sortingMethods.map(buildHeaderItem)
-    
-    
-// ajax question
-    
-let allData = []; // przechowuje wszystkie dane
+            <a data-column="${item.sortColumn}" class="js-sort" href="#">${item.name}</a>
+        </th>`;
+    };
 
-const getData = (url) => {
-    $.ajax({
-        type: 'GET', // zmień POST -> GET
-        url: url,
-        success: function(data) {
-            // Jeśli dane są w formacie JSON string, sparsuj:
-            if (typeof data === 'string') data = JSON.parse(data);
-            
-            allData = data; // zapamiętujemy pełne dane
-            
-            renderTable(); // pierwsze wyświetlenie
-        },
-        error: function() {
-            alert("Problem z pobraniem danych");
+    const buildHeader = () => sortingMethods.map(buildHeaderItem).join('');
+
+    // === ZMIENNE DANYCH ===
+    let allData = []; // tu przechowujemy wszystkie rekordy z pliku JSON
+
+    // === POBIERANIE DANYCH ===
+    const getData = (url) => {
+        $.ajax({
+            type: 'GET',
+            url: url,
+            success: function(data) {
+                if (typeof data === 'string') data = JSON.parse(data);
+                allData = data;
+                renderTable();
+            },
+            error: function() {
+                alert("Problem z pobraniem danych");
+            }
+        });
+    };
+
+    // === RENDEROWANIE TABELI ===
+    function renderTable() {
+        let filtered = [...allData];
+
+        // filtrowanie
+        if (currentState.filter) {
+            filtered = filtered.filter(item =>
+                item.name.toLowerCase().includes(currentState.filter.toLowerCase()) ||
+                item.acronym.toLowerCase().includes(currentState.filter.toLowerCase())
+            );
         }
-    });
-};
 
-function renderTable() {
-    // sortowanie
-    let sorted = [...allData].sort((a, b) => {
-        const col = currentState.sortColumn;
-        const order = currentState.sortOrder === 'asc' ? 1 : -1;
-        if (a[col] < b[col]) return -1 * order;
-        if (a[col] > b[col]) return 1 * order;
-        return 0;
-    });
+        // sortowanie
+        filtered.sort((a, b) => {
+            const col = currentState.sortColumn;
+            const order = currentState.sortOrder === 'asc' ? 1 : -1;
+            if (a[col] < b[col]) return -1 * order;
+            if (a[col] > b[col]) return 1 * order;
+            return 0;
+        });
 
-    // filtrowanie
-    if (currentState.filter) {
-        sorted = sorted.filter(item =>
-            item.name.toLowerCase().includes(currentState.filter.toLowerCase()) ||
-            item.acronym.toLowerCase().includes(currentState.filter.toLowerCase())
-        );
+        // paginacja
+        const start = (currentState.page - 1) * currentState.page_size;
+        const end = start + currentState.page_size;
+        const paged = filtered.slice(start, end);
+
+        // renderowanie
+        $('.js-results-list').empty().append(buildList(paged));
+        $('.js-results-header').empty().append(buildHeader());
+
+        // licznik stron
+        $('.js-counter-page').html(currentState.page);
     }
 
-    // paginacja
-    const start = (currentState.page - 1) * currentState.page_size;
-    const end = start + currentState.page_size;
-    const paged = sorted.slice(start, end);
+    // === SORTOWANIE ===
+    $(document).on('click', '.js-sort', function(e){
+        e.preventDefault();
+        const column = $(this).data('column');
+        if (currentState.sortColumn === column) {
+            currentState.sortOrder = currentState.sortOrder === 'asc' ? 'desc' : 'asc';
+        } else {
+            currentState.sortColumn = column;
+            currentState.sortOrder = 'asc';
+        }
+        renderTable();
+    });
 
-    // render
-    $('.js-results-list').empty().append(buildList(paged));
-    $('.js-results-header').empty().append(buildHeader());
-}
-        
-// sortowanie
-$(document).on('click', '.js-sort', function(e){
-    e.preventDefault();
-    currentState.sortColumn = $(this).data('column');
-    currentState.sortOrder = currentState.sortOrder === 'asc' ? 'desc' : 'asc';
-    renderTable();
-});
-    
-    
-//    filter
-    
+    // === FILTR ===
     $('.js-search-form').on('submit', function(e){
         e.preventDefault();
-        currentState.filter = $('.js-search-form-filter').val()
-        currentState.page = 1
-        renderTable();   
-    })
-    
-//    prev button
-    
+        currentState.filter = $('.js-search-form-filter').val();
+        currentState.page = 1;
+        renderTable();
+    });
+
+    // === PAGINACJA (POP / NEXT) ===
     $('.js-prev').on('click', function(e){
         e.preventDefault();
-        if( currentState.page > 1){
-            currentState.page--;   
+        if (currentState.page > 1) {
+            currentState.page--;
+            renderTable();
         }
-        renderTable();  
-    })
-   
-  //    next button  
-    
-     $('.js-next').on('click', function(e){
-        e.preventDefault(); 
-        currentState.page++; 
-        renderTable();   
-     })
- 
-    
-//    counting page show 
-    
- $(function(){ 
-    let i = 1; 
-     
-    $('.js-counter-page').html(i);
-     
-    $('.js-next').click(function(e){
-       $('.js-counter-page').html(++i); 
     });
-     
-     $('.js-prev').click(function(e){
-           if(i === 1){
-         e.stopPropagation();        
-     } else {
-        $('.js-counter-page').html(--i); 
-     } 
-     });
-     
+
+    $('.js-next').on('click', function(e){
+        e.preventDefault();
+        const totalPages = Math.ceil(allData.length / currentState.page_size);
+        if (currentState.page < totalPages) {
+            currentState.page++;
+            renderTable();
+        }
+    });
+
+    // === START ===
+    getData(apiUrl);
+
 });
-})
