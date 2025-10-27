@@ -28,7 +28,7 @@ $(function(){
         page_size: 20
     }
     
-    const apiUrl = 'http://rt.ex7.pl/get-data';
+    const apiUrl = 'https://host175990.xce.pl/data.json';
     
     const generateUrl = () => apiUrl + '?' + $.param(currentState) // url
     
