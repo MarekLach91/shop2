@@ -8,11 +8,11 @@ $(function() {
 
     // === PREVENT DEFAULT ===
     $('ul li').on('click', function(e){
-        e.preventDefault(); 
+        e.preventDefault();
     });
 
     // === STAN APLIKACJI ===
-    const currentState = { 
+    const currentState = {
         sortColumn: 'id',
         sortOrder: 'asc',
         filter: "",
@@ -31,19 +31,15 @@ $(function() {
     // === FUNKCJE BUDUJĄCE ===
     const buildItem = (item) => (
         `<tr>
-            <td>${item.id}</td>    
-            <td>${item.acronym}</td>    
-            <td>${item.name}</td> 
+            <td>${item.id}</td>
+            <td>${item.acronym}</td>
+            <td>${item.name}</td>
          </tr>`
     );
 
     const buildList = (items) => items.map(buildItem).join('');
 
-    const buildHeaderItem = (item) => { 
-        let sort = currentState.sortOrder;
-        if (item.sortColumn === currentState.sortColumn) {
-            sort = currentState.sortOrder === 'asc' ? 'desc' : 'asc';
-        }
+    const buildHeaderItem = (item) => {
         return `<th>
             <a data-column="${item.sortColumn}" class="js-sort" href="#">${item.name}</a>
         </th>`;
@@ -70,28 +66,40 @@ $(function() {
         });
     };
 
-    // === RENDEROWANIE TABELI ===
-    function renderTable() {
+    // === POMOCNICZE: ZWRACA PRZEFILTROWANE DANE (BEZ PAGINACJI) ===
+    function getFiltered() {
         let filtered = [...allData];
-
-        // filtrowanie
-        if (currentState.filter) {
+        if (currentState.filter && currentState.filter.trim() !== '') {
+            const f = currentState.filter.toLowerCase();
             filtered = filtered.filter(item =>
-                item.name.toLowerCase().includes(currentState.filter.toLowerCase()) ||
-                item.acronym.toLowerCase().includes(currentState.filter.toLowerCase())
+                (item.name && item.name.toLowerCase().includes(f)) ||
+                (item.acronym && item.acronym.toLowerCase().includes(f))
             );
         }
+        return filtered;
+    }
+
+    // === RENDEROWANIE TABELI ===
+    function renderTable() {
+        let filtered = getFiltered();
 
         // sortowanie
         filtered.sort((a, b) => {
             const col = currentState.sortColumn;
             const order = currentState.sortOrder === 'asc' ? 1 : -1;
-            if (a[col] < b[col]) return -1 * order;
-            if (a[col] > b[col]) return 1 * order;
+            // safety: handle undefined values
+            const va = (a[col] === undefined || a[col] === null) ? '' : a[col];
+            const vb = (b[col] === undefined || b[col] === null) ? '' : b[col];
+            if (va < vb) return -1 * order;
+            if (va > vb) return 1 * order;
             return 0;
         });
 
-        // paginacja
+        // paginacja - upewnij się, że page nie przekracza max
+        const totalPages = Math.max(1, Math.ceil(filtered.length / currentState.page_size));
+        if (currentState.page > totalPages) currentState.page = totalPages;
+        if (currentState.page < 1) currentState.page = 1;
+
         const start = (currentState.page - 1) * currentState.page_size;
         const end = start + currentState.page_size;
         const paged = filtered.slice(start, end);
@@ -102,6 +110,8 @@ $(function() {
 
         // licznik stron
         $('.js-counter-page').html(currentState.page);
+        // (opcjonalnie) pokaż też ile stron jest:
+        $('.js-counter-total').html(totalPages);
     }
 
     // === SORTOWANIE ===
@@ -114,13 +124,21 @@ $(function() {
             currentState.sortColumn = column;
             currentState.sortOrder = 'asc';
         }
+        currentState.page = 1;
         renderTable();
     });
 
-    // === FILTR ===
+    // === FILTR: submit oraz natychmiastowe reagowanie przy wpisywaniu ===
     $('.js-search-form').on('submit', function(e){
         e.preventDefault();
-        currentState.filter = $('.js-search-form-filter').val();
+        currentState.filter = $('.js-search-form-filter').val().trim();
+        currentState.page = 1;
+        renderTable();
+    });
+
+    // reaguj natychmiast na zmianę inputa (usuwa konieczność klikania submit)
+    $('.js-search-form-filter').on('input', function(){
+        currentState.filter = $(this).val().trim();
         currentState.page = 1;
         renderTable();
     });
@@ -136,7 +154,7 @@ $(function() {
 
     $('.js-next').on('click', function(e){
         e.preventDefault();
-        const totalPages = Math.ceil(allData.length / currentState.page_size);
+        const totalPages = Math.max(1, Math.ceil(getFiltered().length / currentState.page_size));
         if (currentState.page < totalPages) {
             currentState.page++;
             renderTable();
