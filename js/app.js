@@ -67,24 +67,61 @@ $(function(){
     
 // ajax question
     
-    const getData = (url) => {
+let allData = []; // przechowuje wszystkie dane
 
-         $.getJSON(url, function(data){
-        $('.js-results-list').empty().append(buildList(data));
-        $('.js-results-header').empty().append(buildHeader());
-    }).fail(function(){
-        alert("Problem z pobraniem danych");
+const getData = (url) => {
+    $.ajax({
+        type: 'GET', // zmień POST -> GET
+        url: url,
+        success: function(data) {
+            // Jeśli dane są w formacie JSON string, sparsuj:
+            if (typeof data === 'string') data = JSON.parse(data);
+            
+            allData = data; // zapamiętujemy pełne dane
+            
+            renderTable(); // pierwsze wyświetlenie
+        },
+        error: function() {
+            alert("Problem z pobraniem danych");
+        }
     });
+};
+
+function renderTable() {
+    // sortowanie
+    let sorted = [...allData].sort((a, b) => {
+        const col = currentState.sortColumn;
+        const order = currentState.sortOrder === 'asc' ? 1 : -1;
+        if (a[col] < b[col]) return -1 * order;
+        if (a[col] > b[col]) return 1 * order;
+        return 0;
+    });
+
+    // filtrowanie
+    if (currentState.filter) {
+        sorted = sorted.filter(item =>
+            item.name.toLowerCase().includes(currentState.filter.toLowerCase()) ||
+            item.acronym.toLowerCase().includes(currentState.filter.toLowerCase())
+        );
     }
-    getData(generateUrl());
+
+    // paginacja
+    const start = (currentState.page - 1) * currentState.page_size;
+    const end = start + currentState.page_size;
+    const paged = sorted.slice(start, end);
+
+    // render
+    $('.js-results-list').empty().append(buildList(paged));
+    $('.js-results-header').empty().append(buildHeader());
+}
         
-    $(document).on('click', '.js-sort', function(e){ // ominięcie przeładowania do nowej strony przez onlcick. Przeniesienie nazwy klasy do funkcji 
-        e.preventDefault();
-        currentState.sortColumn = $(this).data('column')
-        const url = $(this).attr("href")
-       
-        getData(url);  
-    })
+// sortowanie
+$(document).on('click', '.js-sort', function(e){
+    e.preventDefault();
+    currentState.sortColumn = $(this).data('column');
+    currentState.sortOrder = currentState.sortOrder === 'asc' ? 'desc' : 'asc';
+    renderTable();
+});
     
     
 //    filter
@@ -93,7 +130,7 @@ $(function(){
         e.preventDefault();
         currentState.filter = $('.js-search-form-filter').val()
         currentState.page = 1
-        getData(generateUrl());   
+        renderTable();   
     })
     
 //    prev button
@@ -103,7 +140,7 @@ $(function(){
         if( currentState.page > 1){
             currentState.page--;   
         }
-        getData(generateUrl());  
+        renderTable();  
     })
    
   //    next button  
@@ -111,7 +148,7 @@ $(function(){
      $('.js-next').on('click', function(e){
         e.preventDefault(); 
         currentState.page++; 
-        getData(generateUrl());   
+        renderTable();   
      })
  
     
