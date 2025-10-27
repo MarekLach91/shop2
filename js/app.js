@@ -69,19 +69,12 @@ $(function(){
     
     const getData = (url) => {
 
-        $.ajax({
-            type: 'POST',
-            url: url,
-            
-            success: function(data, status, xhr){
-                $('.js-results-list').empty().append(buildList(data))  // czyszczenie 
-                $('.js-results-header').empty().append(buildHeader())
-            }, 
-
-            error: function(wrong){
-                alert("Problem z pobraniem danych");
-            }
-        })
+         $.getJSON(url, function(data){
+        $('.js-results-list').empty().append(buildList(data));
+        $('.js-results-header').empty().append(buildHeader());
+    }).fail(function(){
+        alert("Problem z pobraniem danych");
+    });
     }
     getData(generateUrl());
         
